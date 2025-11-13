@@ -10,11 +10,8 @@
 
     <title>Image Optimizer UI</title>
 
-    <!-- Tailwind CSS for styling -->
-
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Inter font from Google Fonts -->
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
 
@@ -22,7 +19,6 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Lucide icons for UI elements -->
 
     <script src="https://cdn.jsdelivr.net/npm/lucide-static@latest/dist/lucide.min.js"></script>
 
@@ -44,8 +40,6 @@
 
     <div class="w-full max-w-6xl bg-white rounded-2xl shadow-xl p-6 md:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-        <!-- Controls Section -->
-
         <div class="lg:col-span-1 flex flex-col gap-6">
 
             <div>
@@ -55,10 +49,6 @@
                 <p class="text-gray-500 mt-1">Adjust the settings below to transform the image.</p>
 
             </div>
-
-
-
-            <!-- Dimensions -->
 
             <div class="space-y-4">
 
@@ -96,8 +86,6 @@
 
 
 
-            <!-- Format & Quality -->
-
             <div class="space-y-4">
 
                  <h3 class="font-semibold text-gray-700 border-b pb-2">Format & Quality</h3>
@@ -130,7 +118,6 @@
 
             
 
-            <!-- Actions -->
 
             <div class="mt-4 flex flex-col gap-3">
 
@@ -156,11 +143,9 @@
 
 
 
-        <!-- Image Display Section -->
 
         <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
 
-            <!-- Original Image -->
 
             <div class="text-center">
 
@@ -172,7 +157,6 @@
 
             </div>
 
-            <!-- Optimized Image -->
 
             <div class="text-center">
 
@@ -200,7 +184,6 @@
 
         document.addEventListener('DOMContentLoaded', () => {
 
-            // --- ELEMENTS ---
 
             const originalImage = document.getElementById('originalImage');
 
@@ -244,13 +227,10 @@
 
 
 
-            // --- IMAGE LOADING ---
 
             const sourceImage = new Image();
 
-            // This is needed to prevent canvas from being "tainted" by a cross-origin image,
 
-            // which would block toDataURL() from working. The image server must support CORS.
 
             sourceImage.crossOrigin = "anonymous";
 
@@ -268,11 +248,10 @@
 
             };
 
-            sourceImage.src = originalImage.src; // Set source from the visible image
+            sourceImage.src = originalImage.src; 
 
 
 
-            // --- EVENT LISTENERS ---
 
             processButton.addEventListener('click', optimizeImage);
 
@@ -288,7 +267,6 @@
 
             formatSelect.addEventListener('change', () => {
 
-                 // The quality slider only applies to JPEG and WebP formats
 
                 if (formatSelect.value === 'image/png') {
 
@@ -332,7 +310,6 @@
 
 
 
-            // --- CORE LOGIC ---
 
             function optimizeImage() {
 
@@ -356,7 +333,6 @@
 
 
 
-                // Create an in-memory canvas to perform the drawing
 
                 const canvas = document.createElement('canvas');
 
@@ -368,21 +344,17 @@
 
 
 
-                // Draw the source image onto the canvas, resizing it in the process
 
                 ctx.drawImage(sourceImage, 0, 0, width, height);
 
 
 
-                // Get the result as a data URL
 
-                // The toDataURL method accepts format and quality parameters
 
                 const dataUrl = canvas.toDataURL(format, (format !== 'image/png') ? quality : undefined);
 
 
 
-                // Display the result
 
                 resultImage.src = dataUrl;
 
@@ -396,7 +368,6 @@
 
 
 
-                // Update download link
 
                 const fileExtension = format.split('/')[1];
 
@@ -406,7 +377,6 @@
 
                 
 
-                // Display file size info
 
                 const fileSizeKB = (dataUrl.length * (3/4) / 1024).toFixed(2);
 
@@ -416,7 +386,6 @@
 
             
 
-            // Initialize Lucide icons
 
             lucide.createIcons();
 
