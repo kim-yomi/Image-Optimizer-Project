@@ -1,398 +1,399 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Image Optimizer UI</title>
-
+    <title>Image Optimizer & Metadata Remover using Pillow API</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
-
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-
     <script src="https://cdn.jsdelivr.net/npm/lucide-static@latest/dist/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
 
     <style>
-
-        body {
-
-            font-family: 'Inter', sans-serif;
-
-        }
-
+        body { font-family: 'Inter', sans-serif; }
+        .meta-scroll::-webkit-scrollbar { width: 6px; }
+        .meta-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
+        .meta-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .meta-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
-
 </head>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
 
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
-
-
-
-    <div class="w-full max-w-6xl bg-white rounded-2xl shadow-xl p-6 md:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-        <div class="lg:col-span-1 flex flex-col gap-6">
-
+    <div class="w-full max-w-7xl bg-white rounded-2xl shadow-xl p-6 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <div class="lg:col-span-4 flex flex-col gap-6">
             <div>
-
-                <h1 class="text-2xl font-bold text-gray-800">Image Optimizer</h1>
-
-                <p class="text-gray-500 mt-1">Adjust the settings below to transform the image.</p>
-
+                <div class="flex items-center gap-2 mb-2">
+                    <h1 class="text-2xl font-bold text-slate-800">Pillow Optimizer</h1>
+                    <span id="pyStatus" class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-700 rounded-full animate-pulse">Loading Python...</span>
+                </div>
+                <p class="text-slate-500 text-sm">Upload an image to optimize and strip metadata using the Pillow Python library.</p>
             </div>
 
-            <div class="space-y-4">
+            <div class="relative border-2 border-dashed border-blue-200 bg-blue-50 rounded-xl p-6 text-center hover:bg-blue-100 transition-colors cursor-pointer" id="dropZone">
+                <input type="file" id="fileInput" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                <div class="flex flex-col items-center justify-center gap-2 pointer-events-none">
+                    <i data-lucide="upload-cloud" class="w-8 h-8 text-blue-500"></i>
+                    <span class="text-sm font-medium text-blue-700">Click or Drop image here</span>
+                </div>
+            </div>
 
-                <h3 class="font-semibold text-gray-700 border-b pb-2">Dimensions</h3>
+            <div class="space-y-5 bg-white rounded-xl border p-4">
+                <div class="flex items-center justify-between border-b pb-2">
+                    <h3 class="font-semibold text-slate-700">Settings</h3>
+                </div>
 
-                <div class="flex items-center gap-4">
-
-                    <div class="flex-1">
-
-                        <label for="width" class="block text-sm font-medium text-gray-600 mb-1">Width (px)</label>
-
-                        <input type="number" id="width" value="800" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Width (px)</label>
+                        <input type="number" id="width" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
-
-                     <div class="flex-1">
-
-                        <label for="height" class="block text-sm font-medium text-gray-600 mb-1">Height (px)</label>
-
-                        <input type="number" id="height" value="600" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Height (px)</label>
+                        <input type="number" id="height" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
-
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="aspectRatio" checked class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                    <label for="aspectRatio" class="text-sm text-slate-600 select-none">Maintain aspect ratio</label>
                 </div>
 
-                 <div>
-
-                    <input type="checkbox" id="aspectRatio" checked class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
-
-                    <label for="aspectRatio" class="ml-2 text-sm font-medium text-gray-700">Maintain aspect ratio</label>
-
+                <div class="flex items-center gap-2 bg-red-50 p-3 rounded-lg border border-red-100">
+                    <input type="checkbox" id="removeMetadata" checked class="w-4 h-4 text-red-600 rounded border-red-300 focus:ring-red-500">
+                    <label for="removeMetadata" class="text-sm font-medium text-red-700 select-none">Remove Metadata (Pillow)</label>
                 </div>
 
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Format</label>
+                        <select id="format" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none">
+                            <option value="JPEG">JPEG</option>
+                            <option value="PNG">PNG</option>
+                            <option value="WEBP" selected>WebP</option>
+                        </select>
+                    </div>
+                    <div id="quality-container">
+                        <div class="flex justify-between mb-1">
+                            <label class="text-xs font-medium text-slate-500">Quality</label>
+                            <span id="qualityValue" class="text-xs font-mono text-blue-600">90</span>
+                        </div>
+                        <input type="range" id="quality" min="10" max="100" value="90" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                    </div>
+                </div>
             </div>
 
-
-
-            <div class="space-y-4">
-
-                 <h3 class="font-semibold text-gray-700 border-b pb-2">Format & Quality</h3>
-
-                 <div>
-
-                    <label for="format" class="block text-sm font-medium text-gray-600 mb-1">Format</label>
-
-                    <select id="format" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-
-                        <option value="image/jpeg">JPEG</option>
-
-                        <option value="image/png">PNG</option>
-
-                        <option value="image/webp" selected>WebP</option>
-
-                    </select>
-
-                </div>
-
-                <div id="quality-container">
-
-                    <label for="quality" class="block text-sm font-medium text-gray-600 mb-1">Quality: <span id="qualityValue">0.9</span></label>
-
-                    <input type="range" id="quality" min="0.1" max="1" step="0.1" value="0.9" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-
-                </div>
-
-            </div>
-
-            
-
-
-            <div class="mt-4 flex flex-col gap-3">
-
-                 <button id="processImage" class="w-full flex items-center justify-center gap-2 bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-
-                    <i data-lucide="sparkles"></i>
-
-                    Optimize Image
-
+            <div class="flex flex-col gap-3 mt-auto">
+                <button id="processBtn" disabled class="w-full flex items-center justify-center gap-2 bg-slate-800 text-white font-medium py-3 px-4 rounded-lg hover:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    <span>Process Image</span>
                 </button>
-
-                 <a id="downloadLink" class="w-full hidden items-center justify-center gap-2 bg-green-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-green-700 transition-colors" href="#" download="optimized-image.webp">
-
-                    <i data-lucide="download"></i>
-
-                    Download Optimized Image
-
+                <a id="downloadLink" class="hidden w-full flex items-center justify-center gap-2 bg-green-600 text-white font-medium py-3 px-4 rounded-lg hover:bg-green-700 transition-colors">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    Download Result
                 </a>
-
             </div>
-
         </div>
 
-
-
-
-        <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-
-
-            <div class="text-center">
-
-                <h2 class="font-semibold text-gray-700 mb-2">Original Image</h2>
-
-                <img id="originalImage" src="golden_retriever.jpeg" crossorigin="anonymous" class="w-full h-auto rounded-lg shadow-md">
-
-                 <p id="originalInfo" class="text-sm text-gray-500 mt-2"></p>
-
-            </div>
-
-
-            <div class="text-center">
-
-                <h2 class="font-semibold text-gray-700 mb-2">Optimized Result</h2>
-
-                <div id="resultContainer" class="w-full h-auto rounded-lg shadow-md bg-gray-200 flex items-center justify-center min-h-[200px]">
-
-                    <img id="resultImage" class="w-full h-auto rounded-lg hidden">
-
-                    <p id="placeholderText" class="text-gray-500">Click 'Optimize Image' to see the result</p>
-
+        <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div class="flex flex-col h-full">
+                <h2 class="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                    <i data-lucide="image" class="w-4 h-4"></i> Original
+                </h2>
+                <div class="bg-slate-100 rounded-lg border border-slate-200 p-2 flex-grow flex flex-col gap-4">
+                    <div class="relative h-48 md:h-64 w-full flex items-center justify-center bg-slate-200/50 rounded overflow-hidden">
+                        <img id="originalImage" class="max-w-full max-h-full object-contain hidden">
+                        <span id="origPlaceholder" class="text-slate-400 text-sm">No image loaded</span>
+                    </div>
+                    
+                    <div class="bg-white rounded border border-slate-200 p-3 flex-1 flex flex-col min-h-[150px]">
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Metadata (EXIF)</span>
+                        <div id="originalMeta" class="meta-scroll flex-1 overflow-y-auto text-xs font-mono text-slate-600 whitespace-pre-wrap h-32">Wait for upload...</div>
+                    </div>
                 </div>
-
-                <p id="resultInfo" class="text-sm text-gray-500 mt-2"></p>
-
             </div>
 
-        </div>
+            <div class="flex flex-col h-full">
+                <h2 class="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                    <i data-lucide="check-circle-2" class="w-4 h-4"></i> Optimized Result
+                </h2>
+                <div class="bg-slate-100 rounded-lg border border-slate-200 p-2 flex-grow flex flex-col gap-4">
+                    <div class="relative h-48 md:h-64 w-full flex items-center justify-center bg-slate-200/50 rounded overflow-hidden">
+                        <img id="resultImage" class="max-w-full max-h-full object-contain hidden">
+                        <div id="loader" class="hidden flex-col items-center gap-2">
+                            <div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                            <span class="text-xs text-blue-600 font-medium">Processing with Pillow...</span>
+                        </div>
+                        <span id="resPlaceholder" class="text-slate-400 text-sm">Process to see result</span>
+                    </div>
 
+                    <div class="bg-white rounded border border-slate-200 p-3 flex-1 flex flex-col min-h-[150px]">
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Result Metadata</span>
+                        <div id="resultMeta" class="meta-scroll flex-1 overflow-y-auto text-xs font-mono text-slate-600 whitespace-pre-wrap h-32">Wait for processing...</div>
+                    </div>
+                </div>
+                <p id="resultStats" class="text-xs text-right text-slate-500 mt-2 h-4"></p>
+            </div>
+        </div>
     </div>
 
-
-
     <script>
-
-        document.addEventListener('DOMContentLoaded', () => {
-
-
-            const originalImage = document.getElementById('originalImage');
-
-            const resultImage = document.getElementById('resultImage');
-
-            const resultContainer = document.getElementById('resultContainer');
-
-            const placeholderText = document.getElementById('placeholderText');
-
-            
-
-            const widthInput = document.getElementById('width');
-
-            const heightInput = document.getElementById('height');
-
-            const aspectRatioCheckbox = document.getElementById('aspectRatio');
-
-            const formatSelect = document.getElementById('format');
-
-            const qualitySlider = document.getElementById('quality');
-
-            const qualityValue = document.getElementById('qualityValue');
-
-            const qualityContainer = document.getElementById('quality-container');
-
-
-
-            const processButton = document.getElementById('processImage');
-
-            const downloadLink = document.getElementById('downloadLink');
-
-
-
-            const originalInfo = document.getElementById('originalInfo');
-
-            const resultInfo = document.getElementById('resultInfo');
-
-
-
-            let originalAspectRatio = 1;
-
-
-
-
-            const sourceImage = new Image();
-
-
-
-            sourceImage.crossOrigin = "anonymous";
-
-            
-
-            sourceImage.onload = () => {
-
-                originalAspectRatio = sourceImage.naturalWidth / sourceImage.naturalHeight;
-
-                widthInput.value = sourceImage.naturalWidth;
-
-                heightInput.value = sourceImage.naturalHeight;
-
-                originalInfo.textContent = `Dimensions: ${sourceImage.naturalWidth}x${sourceImage.naturalHeight}`;
-
-            };
-
-            sourceImage.src = originalImage.src; 
-
-
-
-
-            processButton.addEventListener('click', optimizeImage);
-
-
-
-            qualitySlider.addEventListener('input', () => {
-
-                qualityValue.textContent = qualitySlider.value;
-
-            });
-
-
-
-            formatSelect.addEventListener('change', () => {
-
-
-                if (formatSelect.value === 'image/png') {
-
-                    qualityContainer.style.display = 'none';
-
-                } else {
-
-                    qualityContainer.style.display = 'block';
-
-                }
-
-            });
-
-
-
-            widthInput.addEventListener('input', () => {
-
-                if (aspectRatioCheckbox.checked) {
-
-                    const newHeight = Math.round(widthInput.value / originalAspectRatio);
-
-                    if (!isNaN(newHeight)) heightInput.value = newHeight;
-
-                }
-
-            });
-
-
-
-            heightInput.addEventListener('input', () => {
-
-                 if (aspectRatioCheckbox.checked) {
-
-                    const newWidth = Math.round(heightInput.value * originalAspectRatio);
-
-                    if (!isNaN(newWidth)) widthInput.value = newWidth;
-
-                }
-
-            });
-
-
-
-
-            function optimizeImage() {
-
-                const width = parseInt(widthInput.value, 10);
-
-                const height = parseInt(heightInput.value, 10);
-
-                const format = formatSelect.value;
-
-                const quality = parseFloat(qualitySlider.value);
-
-
-
-                if (isNaN(width) || isNaN(height) || width <= 0 || height <= 0) {
-
-                    alert('Please enter valid width and height values.');
-
-                    return;
-
-                }
-
-
-
-
-                const canvas = document.createElement('canvas');
-
-                canvas.width = width;
-
-                canvas.height = height;
-
-                const ctx = canvas.getContext('2d');
-
-
-
-
-                ctx.drawImage(sourceImage, 0, 0, width, height);
-
-
-
-
-
-                const dataUrl = canvas.toDataURL(format, (format !== 'image/png') ? quality : undefined);
-
-
-
-
-                resultImage.src = dataUrl;
-
-                resultImage.classList.remove('hidden');
-
-                placeholderText.classList.add('hidden');
-
-                downloadLink.classList.remove('hidden');
-
-                downloadLink.classList.add('flex');
-
-
-
-
-                const fileExtension = format.split('/')[1];
-
-                downloadLink.href = dataUrl;
-
-                downloadLink.download = `optimized-image-${width}x${height}.${fileExtension}`;
-
+        const els = {
+            fileInput: document.getElementById('fileInput'),
+            width: document.getElementById('width'),
+            height: document.getElementById('height'),
+            aspectRatio: document.getElementById('aspectRatio'),
+            format: document.getElementById('format'),
+            quality: document.getElementById('quality'),
+            qualityVal: document.getElementById('qualityValue'),
+            qualityContainer: document.getElementById('quality-container'),
+            processBtn: document.getElementById('processBtn'),
+            downloadLink: document.getElementById('downloadLink'),
+            originalImg: document.getElementById('originalImage'),
+            resultImg: document.getElementById('resultImage'),
+            origPlaceholder: document.getElementById('origPlaceholder'),
+            resPlaceholder: document.getElementById('resPlaceholder'),
+            originalMeta: document.getElementById('originalMeta'),
+            resultMeta: document.getElementById('resultMeta'),
+            loader: document.getElementById('loader'),
+            removeMeta: document.getElementById('removeMetadata'),
+            resultStats: document.getElementById('resultStats'),
+            pyStatus: document.getElementById('pyStatus')
+        };
+
+        let pyodide = null;
+        let originalAspectRatio = 0;
+        let currentFileBytes = null;
+
+        async function initPython() {
+            try {
+                pyodide = await loadPyodide();
+                await pyodide.loadPackage("micropip");
+                const micropip = pyodide.pyimport("micropip");
+                await micropip.install("Pillow");
                 
-
-
-                const fileSizeKB = (dataUrl.length * (3/4) / 1024).toFixed(2);
-
-                resultInfo.textContent = `Dimensions: ${width}x${height} | Size: ~${fileSizeKB} KB`;
-
+                els.pyStatus.textContent = "Ready";
+                els.pyStatus.classList.replace("bg-yellow-100", "bg-green-100");
+                els.pyStatus.classList.replace("text-yellow-700", "text-green-700");
+                els.pyStatus.classList.remove("animate-pulse");
+                
+                console.log("Python & Pillow Loaded");
+            } catch (err) {
+                els.pyStatus.textContent = "Error Loading Python";
+                els.pyStatus.classList.replace("bg-yellow-100", "bg-red-100");
+                console.error(err);
             }
+        }
 
+        initPython();
+
+
+        els.fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            els.resultImg.classList.add('hidden');
+            els.resPlaceholder.classList.remove('hidden');
+            els.downloadLink.classList.add('hidden');
+            els.resultMeta.textContent = "Wait for processing...";
+            els.resultStats.textContent = "";
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                els.originalImg.src = event.target.result;
+                els.originalImg.classList.remove('hidden');
+                els.origPlaceholder.classList.add('hidden');
+                
+                const img = new Image();
+                img.onload = () => {
+                    originalAspectRatio = img.naturalWidth / img.naturalHeight;
+                    els.width.value = img.naturalWidth;
+                    els.height.value = img.naturalHeight;
+                    els.processBtn.disabled = false;
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+
+            const arrayBuffer = await file.arrayBuffer();
+            currentFileBytes = new Uint8Array(arrayBuffer);
             
-
-
-            lucide.createIcons();
-
+            if (pyodide) {
+                extractOriginalMetadata();
+            }
         });
 
+        els.quality.addEventListener('input', () => els.qualityVal.textContent = els.quality.value);
+        els.format.addEventListener('change', () => {
+            els.qualityContainer.style.opacity = els.format.value === 'PNG' ? '0.3' : '1';
+            els.qualityContainer.style.pointerEvents = els.format.value === 'PNG' ? 'none' : 'auto';
+        });
+
+        els.width.addEventListener('input', () => {
+            if (els.aspectRatio.checked && originalAspectRatio) {
+                els.height.value = Math.round(els.width.value / originalAspectRatio);
+            }
+        });
+
+        els.height.addEventListener('input', () => {
+            if (els.aspectRatio.checked && originalAspectRatio) {
+                els.width.value = Math.round(els.height.value * originalAspectRatio);
+            }
+        });
+
+        els.processBtn.addEventListener('click', async () => {
+            if (!pyodide || !currentFileBytes) return;
+
+            els.resPlaceholder.classList.add('hidden');
+            els.resultImg.classList.add('hidden');
+            els.loader.classList.remove('hidden');
+            els.loader.classList.add('flex');
+            els.processBtn.disabled = true;
+
+            setTimeout(async () => {
+                try {
+                    const result = await runPythonOptimization();
+                    displayResult(result);
+                } catch (err) {
+                    alert("Error processing image: " + err);
+                } finally {
+                    els.loader.classList.add('hidden');
+                    els.loader.classList.remove('flex');
+                    els.processBtn.disabled = false;
+                }
+            }, 100);
+        });
+
+
+
+        async function extractOriginalMetadata() {
+            if(!currentFileBytes) return;
+            
+            const pythonCode = `
+from PIL import Image, ExifTags
+import io
+import json
+
+def get_meta(file_bytes):
+    try:
+        img = Image.open(io.BytesIO(bytes(file_bytes)))
+        exif = img.getexif()
+        data = {}
+        if exif:
+            for k, v in exif.items():
+                # Decode specific tag names
+                tag = ExifTags.TAGS.get(k, k)
+                data[str(tag)] = str(v)
+        if not data:
+            return json.dumps({"Status": "No EXIF data found"})
+        return json.dumps(data, indent=2)
+    except Exception as e:
+        return json.dumps({"Error": str(e)})
+
+get_meta(file_bytes)
+            `;
+            
+            try {
+                pyodide.globals.set("file_bytes", currentFileBytes);
+                const jsonResult = await pyodide.runPythonAsync(pythonCode);
+                els.originalMeta.textContent = jsonResult;
+            } catch (e) {
+                els.originalMeta.textContent = "Error extracting metadata: " + e;
+            }
+        }
+
+        async function runPythonOptimization() {
+            const w = parseInt(els.width.value);
+            const h = parseInt(els.height.value);
+            const q = parseInt(els.quality.value);
+            const fmt = els.format.value;
+            const removeMeta = els.removeMeta.checked;
+
+            const pythonCode = `
+import base64
+from PIL import Image, ExifTags
+
+def process():
+    # Open Image
+    input_io = io.BytesIO(bytes(file_bytes))
+    img = Image.open(input_io)
+    
+    # Resize
+    img = img.resize((${w}, ${h}), Image.Resampling.LANCZOS)
+    
+    # Handle Format
+    fmt_str = "${fmt}"
+    
+    # Save Logic
+    out_io = io.BytesIO()
+    
+    # Configure save options
+    save_args = {}
+    if fmt_str != "PNG":
+        save_args["quality"] = ${q}
+        
+    # METADATA LOGIC:
+    # Pillow's 'save' method DOES NOT preserve EXIF by default unless passed.
+    # To satisfy "Remove Metadata", we simply do not pass 'exif' parameter.
+    # If we wanted to keep it, we would extract it first and pass exif=exif_obj
+    
+    orig_exif = img.getexif()
+    
+    if not ${removeMeta ? 'True' : 'False'}:
+        # If user wants to KEEP metadata (removeMeta is False)
+        save_args["exif"] = orig_exif
+        
+    img.save(out_io, format=fmt_str, **save_args)
+    
+    # Verification: Re-open to check what metadata exists in result
+    out_io.seek(0)
+    check_img = Image.open(out_io)
+    check_exif = check_img.getexif()
+    final_meta = {}
+    if check_exif:
+         for k, v in check_exif.items():
+            tag = ExifTags.TAGS.get(k, k)
+            final_meta[str(tag)] = str(v)
+    
+    # Encode result
+    out_io.seek(0)
+    b64 = base64.b64encode(out_io.read()).decode('utf-8')
+    
+    return json.dumps({
+        "image": b64,
+        "meta": final_meta if final_meta else {"Status": "Metadata successfully removed" if ${removeMeta ? 'True' : 'False'} else "No Metadata present"}
+    }, indent=2)
+
+process()
+            `;
+
+            pyodide.globals.set("file_bytes", currentFileBytes);
+            const res = await pyodide.runPythonAsync(pythonCode);
+            return JSON.parse(res);
+        }
+
+        function displayResult(data) {
+            const mime = els.format.value === 'JPEG' ? 'image/jpeg' : els.format.value === 'PNG' ? 'image/png' : 'image/webp';
+            const dataUrl = `data:${mime};base64,${data.image}`;
+            
+            els.resultImg.src = dataUrl;
+            els.resultImg.classList.remove('hidden');
+            
+            els.resultMeta.textContent = typeof data.meta === 'string' ? data.meta : JSON.stringify(data.meta, null, 2);
+            
+            els.downloadLink.href = dataUrl;
+            els.downloadLink.download = `optimized.${els.format.value.toLowerCase()}`;
+            els.downloadLink.classList.remove('hidden');
+            els.downloadLink.classList.add('flex');
+
+            const sizeKB = Math.round((data.image.length * 0.75) / 1024);
+            els.resultStats.textContent = `Size: ~${sizeKB} KB`;
+        }
+
+        lucide.createIcons();
     </script>
-
 </body>
-
 </html>
