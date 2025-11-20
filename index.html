@@ -18,7 +18,6 @@
         .meta-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         .meta-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* Tab Styles */
         .tab-btn {
             @apply px-4 py-2 font-medium text-sm text-slate-500 border-b-2 border-transparent transition-colors;
         }
@@ -34,7 +33,6 @@
 
     <div class="w-full max-w-7xl bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col min-h-[800px]">
         
-        <!-- Navigation Tabs -->
         <div class="border-b border-slate-200 px-6 pt-4 flex items-center justify-between bg-white sticky top-0 z-10">
             <div class="flex gap-4">
                 <button id="tabOptimizer" class="tab-btn active">Optimizer Tool</button>
@@ -48,7 +46,6 @@
             </div>
         </div>
 
-        <!-- MAIN APP VIEW -->
         <div id="optimizerView" class="p-6 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 flex-grow">
             <div class="lg:col-span-4 flex flex-col gap-6">
                 <div>
@@ -72,7 +69,6 @@
                         <i data-lucide="sliders" class="w-4 h-4 text-slate-400"></i>
                     </div>
 
-                    <!-- Dimensions -->
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-medium text-slate-500 mb-1">Width (px)</label>
@@ -89,14 +85,12 @@
                         <label for="aspectRatio" class="text-sm text-slate-600 select-none cursor-pointer">Maintain aspect ratio</label>
                     </div>
 
-                    <!-- Metadata Toggle -->
                     <div class="flex items-center gap-2 bg-red-50 p-3 rounded-lg border border-red-100">
                         <input type="checkbox" id="removeMetadata" checked class="w-4 h-4 text-red-600 rounded border-red-300 focus:ring-red-500">
                         <label for="removeMetadata" class="text-sm font-medium text-red-700 select-none cursor-pointer flex-1">Remove EXIF Metadata</label>
                         <i data-lucide="shield-alert" class="w-4 h-4 text-red-400"></i>
                     </div>
 
-                    <!-- Watermark Section -->
                     <div class="border-t pt-4">
                          <div class="flex items-center gap-2 mb-3">
                             <input type="checkbox" id="enableWatermark" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
@@ -137,7 +131,6 @@
                         </div>
                     </div>
 
-                    <!-- Output Settings -->
                     <div class="space-y-3 border-t pt-4">
                         <div>
                             <label class="block text-xs font-medium text-slate-500 mb-1">Format</label>
@@ -216,34 +209,27 @@
             </div>
         </div>
 
-        <!-- INFORMATION VIEW (Initially Hidden) -->
         <div id="infoView" class="hidden p-8 md:p-12 flex-col items-center justify-center animate-fade-in min-h-full">
             <div class="max-w-5xl w-full space-y-12">
                 
-                <!-- Text Header -->
                 <div class="text-center space-y-2">
                     <h2 class="text-3xl font-bold text-slate-800">Client-Side Architecture</h2>
                     <p class="text-slate-500">How this tool protects your privacy using WebAssembly.</p>
                 </div>
 
-                <!-- SVG Diagram -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex justify-center">
                     <svg width="600" height="260" viewBox="0 0 600 260" class="w-full h-auto max-w-[600px]" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Background Flow -->
                         <rect x="50" y="30" width="500" height="200" rx="15" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="5,5"/>
                         <text x="70" y="60" font-family="sans-serif" font-size="12" fill="#64748b" font-weight="bold">YOUR BROWSER (SANDBOX)</text>
 
-                        <!-- Input Node -->
                         <g transform="translate(100, 130)">
                             <circle r="30" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
                             <path d="M-10 -5 L10 -5 L10 5 L-10 5 Z" fill="#3b82f6"/>
                             <text x="0" y="45" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="bold">User Image</text>
                         </g>
 
-                        <!-- Arrow 1 -->
                         <path d="M140 130 L190 130" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowhead)"/>
 
-                        <!-- Process Node (Pyodide) -->
                         <g transform="translate(300, 130)">
                             <rect x="-60" y="-40" width="120" height="80" rx="8" fill="#fff" stroke="#eab308" stroke-width="2"/>
                             <text x="0" y="-15" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#854d0e" font-weight="bold">Pyodide Engine</text>
@@ -252,17 +238,14 @@
                             <text x="0" y="30" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0f766e" font-weight="bold">Pillow Library</text>
                         </g>
 
-                        <!-- Arrow 2 -->
                         <path d="M370 130 L420 130" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowhead)"/>
 
-                        <!-- Output Node -->
                         <g transform="translate(500, 130)">
                             <circle r="30" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/>
                             <path d="M-8 0 L-2 6 L8 -6" stroke="#15803d" stroke-width="3" fill="none"/>
                             <text x="0" y="45" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#1e293b" font-weight="bold">Clean Result</text>
                         </g>
 
-                        <!-- Definitions -->
                         <defs>
                             <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
                                 <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8"/>
@@ -271,10 +254,8 @@
                     </svg>
                 </div>
 
-                <!-- Explainer Text (3 Columns) -->
                 <div class="grid md:grid-cols-3 gap-8 text-sm text-slate-600">
                     
-                    <!-- Item 1 -->
                     <div class="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
                         <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
                             <div class="p-2 bg-blue-100 rounded-lg text-blue-600"><i data-lucide="lock" class="w-5 h-5"></i></div>
@@ -286,7 +267,6 @@
                         </p>
                     </div>
                     
-                    <!-- Item 2 -->
                     <div class="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
                         <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
                              <div class="p-2 bg-yellow-100 rounded-lg text-yellow-600"><i data-lucide="cpu" class="w-5 h-5"></i></div>
@@ -298,7 +278,6 @@
                         </p>
                     </div>
 
-                    <!-- Item 3 -->
                     <div class="space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
                         <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
                              <div class="p-2 bg-green-100 rounded-lg text-green-600"><i data-lucide="layers" class="w-5 h-5"></i></div>
@@ -310,10 +289,8 @@
                     </div>
                 </div>
 
-                <!-- Credits -->
                 <div class="pt-8 border-t border-slate-200 text-center">
                     
-                    <!-- Team Section -->
                     <div class="mb-8">
                         <p class="text-xs text-slate-400 font-medium uppercase tracking-widest mb-4">Credits</p>
                         <div class="text-center space-y-1 text-sm font-medium text-slate-600">
@@ -323,7 +300,6 @@
                         </div>
                     </div>
 
-                    <!-- Tech Stack -->
                     
                 </div>
 
@@ -332,15 +308,12 @@
     </div>
 
     <script>
-        // --- DOM Elements ---
         const els = {
-            // Tabs
             tabOptimizer: document.getElementById('tabOptimizer'),
             tabInfo: document.getElementById('tabInfo'),
             viewOptimizer: document.getElementById('optimizerView'),
             viewInfo: document.getElementById('infoView'),
 
-            // App Controls
             fileInput: document.getElementById('fileInput'),
             width: document.getElementById('width'),
             height: document.getElementById('height'),
@@ -352,7 +325,6 @@
             processBtn: document.getElementById('processBtn'),
             downloadLink: document.getElementById('downloadLink'),
             
-            // Watermark Controls
             enableWatermark: document.getElementById('enableWatermark'),
             watermarkControls: document.getElementById('watermarkControls'),
             watermarkInput: document.getElementById('watermarkInput'),
@@ -362,7 +334,6 @@
             wmScaleVal: document.getElementById('wmScaleVal'),
             wmPosition: document.getElementById('wmPosition'),
             
-            // Displays
             originalImg: document.getElementById('originalImage'),
             resultImg: document.getElementById('resultImage'),
             origPlaceholder: document.getElementById('origPlaceholder'),
@@ -375,30 +346,27 @@
             pyStatus: document.getElementById('pyStatus')
         };
 
-        // --- Tab Logic ---
         function switchTab(tabName) {
             if(tabName === 'optimizer') {
                 els.tabOptimizer.classList.add('active');
                 els.tabInfo.classList.remove('active');
                 
-                // Explicitly toggle display logic to prevent CSS leaks
                 els.viewOptimizer.classList.remove('hidden');
                 els.viewInfo.classList.add('hidden');
-                els.viewInfo.classList.remove('flex'); // Remove flex to ensure hidden applies
+                els.viewInfo.classList.remove('flex'); 
             } else {
                 els.tabOptimizer.classList.remove('active');
                 els.tabInfo.classList.add('active');
                 
                 els.viewOptimizer.classList.add('hidden');
                 els.viewInfo.classList.remove('hidden');
-                els.viewInfo.classList.add('flex'); // Add flex class instead of inline style
+                els.viewInfo.classList.add('flex'); 
             }
         }
 
         els.tabOptimizer.addEventListener('click', () => switchTab('optimizer'));
         els.tabInfo.addEventListener('click', () => switchTab('info'));
 
-        // --- Watermark Logic ---
         let watermarkFileBytes = null;
 
         els.enableWatermark.addEventListener('change', (e) => {
@@ -419,7 +387,6 @@
             watermarkFileBytes = new Uint8Array(arrayBuffer);
         });
 
-        // --- Python/Pyodide Setup ---
         let pyodide = null;
         let originalAspectRatio = 0;
         let currentFileBytes = null;
@@ -446,12 +413,10 @@
 
         initPython();
 
-        // --- App Logic ---
         els.fileInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
 
-            // Reset result view
             els.resultImg.classList.add('hidden');
             els.resPlaceholder.classList.remove('hidden');
             els.downloadLink.classList.add('hidden');
@@ -531,7 +496,6 @@
             }, 100);
         });
 
-        // --- Python Functions ---
         async function extractOriginalMetadata() {
             if(!currentFileBytes) return;
             
@@ -576,17 +540,15 @@ get_meta(file_bytes)
             const fmt = els.format.value;
             const removeMeta = els.removeMeta.checked;
             
-            // Watermark Params
             const useWm = els.enableWatermark.checked;
             const wmOpacity = parseInt(els.wmOpacity.value);
             const wmScale = parseInt(els.wmScale.value);
             const wmPos = els.wmPosition.value;
 
-            // Only set watermark bytes if enabled
             if (useWm && watermarkFileBytes) {
                 pyodide.globals.set("wm_bytes", watermarkFileBytes);
             } else {
-                pyodide.globals.set("wm_bytes", null); // Ensure it's clear
+                pyodide.globals.set("wm_bytes", null); 
             }
 
             const pythonCode = `
@@ -719,7 +681,6 @@ process()
             els.downloadLink.classList.remove('hidden');
             els.downloadLink.classList.add('flex');
 
-            // Calculate size
             const sizeKB = Math.round((data.image.length * 0.75) / 1024);
             els.resultStats.textContent = `Size: ~${sizeKB} KB`;
         }
